@@ -1,0 +1,12 @@
+// Schéma Prisma — Phase 0 : datasource et generator uniquement.
+// Le modèle de données complet (Project, Lab, LabSeries, Tag…) arrive en Phase 1.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  // Prisma 7 : l'URL vit dans prisma.config.ts et dans l'adaptateur du client.
+}
