@@ -12,6 +12,21 @@ import {
 import { LabCard, ProjectCard } from '@/components/public/Cards';
 import { ymd } from '@/lib/dates';
 
+import { buildMetadata } from '@/lib/metadata';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const loc = locale === 'en' ? 'en' : 'fr';
+  const settings = await getSettings();
+  return buildMetadata({
+    locale: loc,
+    path: '/',
+    title: settings?.seoTitle || settings?.fullName || 'Portfolio',
+    description: (loc === 'en' ? settings?.seoDescEn : settings?.seoDesc) || settings?.tagline || '',
+    meta: settings?.location ?? '',
+  });
+}
+
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: raw } = await params;
   if (!isLocale(raw)) notFound();

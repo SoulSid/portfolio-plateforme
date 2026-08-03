@@ -6,6 +6,23 @@ import { getLabBySlug, incrementViews } from '@/lib/queries';
 import { refCode } from '@/components/public/Cards';
 import { ymd } from '@/lib/dates';
 
+import { buildMetadata } from '@/lib/metadata';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }) {
+  const { locale, slug } = await params;
+  const loc = locale === 'en' ? 'en' : 'fr';
+  const lab = await getLabBySlug(slug);
+  if (!lab) return {};
+  return buildMetadata({
+    locale: loc,
+    path: `/labs/${lab.slug}`,
+    title: pick(loc, lab.title, lab.titleEn),
+    description: pick(loc, lab.objective, lab.summaryEn),
+    meta: lab.dayNumber ? `JOUR ${lab.dayNumber}` : 'LAB',
+    type: 'article',
+  });
+}
+
 export const dynamic = 'force-dynamic';
 
 interface Props {

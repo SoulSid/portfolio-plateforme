@@ -1,34 +1,65 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 import NextAuth from 'next-auth';
 import { authConfig } from '@/auth.config';
 
 const { auth } = NextAuth(authConfig);
 
 /**
- * Deux responsabilités :
+ * Deux responsabilités.
  *
- * 1. Protéger /admin/* — délégué à Auth.js (configuration Edge, sans Prisma).
- * 2. Router les locales — le français n'est pas préfixé dans l'URL publique
- *    (`/labs`) mais l'arborescence de fichiers l'est (`app/[locale]/labs`).
- *    On réécrit donc en interne vers /fr/... sans changer l'URL affichée.
+ * 1. Protéger /admin/*.
+ *    ATTENTION : dès qu'on fournit son propre callback à `auth()`, le rappel
+ *    `authorized` de la configuration n'est PLUS appliqué automatiquement.
+ *    C'est ce fichier qui doit refuser l'accès. Toute modification ici doit
+ *    être suivie du test « /admin sans session → 307 vers /admin/login ».
+ *
+ * 2. Router les locales.
+ *    Le français n'est pas préfixé dans l'URL publique (`/labs`) alors que
+ *    l'arborescence de fichiers l'est (`app/[locale]/labs`) : on réécrit en
+ *    interne sans changer l'URL affichée.
  */
-export default auth((request: NextRequest) => {
+export default auth((request) => {
   const { pathname } = request.nextUrl;
 
-  /* Laisse passer l'admin, les API, les fichiers statiques. */
+  /* ── 1. Administration ───────────────────────────────────────────── */
+  if (pathname.startsWith('/admin')) {
+    const isLoggedIn = Boolean(request.auth?.user);
+    const isOnLogin = pathname === '/admin/login';
+
+    if (isOnLogin) {
+      return isLoggedIn
+        ? NextResponse.redirect(new URL('/admin', request.nextUrl))
+        : NextResponse.next();
+    }
+
+    if (!isLoggedIn) {
+      const login = new URL('/admin/login', request.nextUrl);
+      login.searchParams.set('callbackUrl', request.nextUrl.href);
+      return NextResponse.redirect(login);
+    }
+
+    return NextResponse.next();
+  }
+
+  /* ── 2. Routes techniques : ni locale, ni authentification ───────── */
   if (
-    pathname.startsWith('/admin') ||
     pathname.startsWith('/api') ||
     pathname.startsWith('/_next') ||
-    pathname.startsWith('/en') ||
+    pathname.startsWith('/og') ||
+    pathname === '/sitemap.xml' ||
+    pathname === '/robots.txt' ||
     /\.[^/]+$/.test(pathname)
   ) {
+    return NextResponse.next();
+  }
+
+  /* ── 3. Locales ──────────────────────────────────────────────────── */
+  if (pathname.startsWith('/en')) {
     const passthrough = NextResponse.next();
-    if (pathname.startsWith('/en')) passthrough.headers.set('x-locale', 'en');
+    passthrough.headers.set('x-locale', 'en');
     return passthrough;
   }
 
-  /* Le francais n'est pas prefixe dans l'URL : on reecrit vers /fr en interne. */
   const url = request.nextUrl.clone();
   url.pathname = `/fr${pathname === '/' ? '' : pathname}`;
   const rewritten = NextResponse.rewrite(url);

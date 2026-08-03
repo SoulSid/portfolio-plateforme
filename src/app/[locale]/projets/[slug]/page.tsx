@@ -6,6 +6,23 @@ import { getProjectBySlug, incrementViews } from '@/lib/queries';
 import { refCode } from '@/components/public/Cards';
 import { ymd } from '@/lib/dates';
 
+import { buildMetadata } from '@/lib/metadata';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }) {
+  const { locale, slug } = await params;
+  const loc = locale === 'en' ? 'en' : 'fr';
+  const project = await getProjectBySlug(slug);
+  if (!project) return {};
+  return buildMetadata({
+    locale: loc,
+    path: `/projets/${project.slug}`,
+    title: pick(loc, project.title, project.titleEn),
+    description: pick(loc, project.summary, project.summaryEn),
+    meta: project.client ?? 'PROJET',
+    type: 'article',
+  });
+}
+
 export const dynamic = 'force-dynamic';
 
 interface Props {
