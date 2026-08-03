@@ -1,7 +1,11 @@
-// Prisma 7 ne charge plus .env automatiquement : c'est ce fichier qui s'en charge.
-// Aucune valeur secrète ici — tout vient de .env.local, jamais versionné.
-import 'dotenv/config';
+// Prisma 7 ne charge plus les variables d'environnement automatiquement.
+// On pointe explicitement .env.local — le même fichier que Next.js lit — pour
+// qu'il n'y ait qu'UNE seule source de configuration locale.
+// Aucune valeur secrète ici : .env.local n'est jamais versionné.
+import { config } from 'dotenv';
 import { defineConfig } from 'prisma/config';
+
+config({ path: '.env.local' });
 
 export default defineConfig({
   schema: 'prisma/schema.prisma',

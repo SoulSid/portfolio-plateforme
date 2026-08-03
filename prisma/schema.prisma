@@ -1,5 +1,10 @@
-// Schéma Prisma — Phase 0 : datasource et generator uniquement.
-// Le modèle de données complet (Project, Lab, LabSeries, Tag…) arrive en Phase 1.
+// Modèle de données — section 4 du brief.
+//
+// Règle structurante : aucun contenu éditorial ne vit dans le code. Tout ce qui
+// est publiable (projets, labs, séries, CV, réglages du site) est une ligne ici.
+//
+// Bilingue : les colonnes *En sont nullables et inutilisées pour l'instant.
+// Leur présence rend l'ajout d'un sélecteur de langue incrémental.
 
 generator client {
   provider = "prisma-client"
@@ -9,4 +14,205 @@ generator client {
 datasource db {
   provider = "postgresql"
   // Prisma 7 : l'URL vit dans prisma.config.ts et dans l'adaptateur du client.
+}
+
+enum Status {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum TagKind {
+  TECH // Python, Kafka, NestJS
+  DOMAIN // Télécom, Cybersécurité, Data Engineering
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime @default(now())
+}
+
+model Project {
+  id      String @id @default(cuid())
+  slug    String @unique
+  title   String
+  summary String // 1–2 phrases, affichées en carte
+  content String // HTML produit par TipTap
+
+  // Bilingue différé (section 4)
+  titleEn   String?
+  summaryEn String?
+  contentEn String?
+
+  coverId String?
+  cover   Media?  @relation(fields: [coverId], references: [id], onDelete: SetNull)
+
+  client     String? // null si projet personnel
+  role       String?
+  repoUrl    String?
+  demoUrl    String?
+  startedAt  DateTime?
+  finishedAt DateTime?
+
+  status   Status  @default(DRAFT)
+  featured Boolean @default(false)
+  order    Int     @default(0)
+  views    Int     @default(0)
+
+  tags Tag[]
+
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([status, publishedAt])
+  @@index([featured, order])
+}
+
+model LabSeries {
+  id          String  @id @default(cuid())
+  slug        String  @unique
+  title       String // « 20 jours — Pipeline de détection de fraude CDR »
+  description String
+  coverId     String?
+  cover       Media?  @relation(fields: [coverId], references: [id], onDelete: SetNull)
+
+  labs Lab[]
+
+  status    Status   @default(DRAFT)
+  createdAt DateTime @default(now())
+
+  @@index([status])
+}
+
+model Lab {
+  id        String  @id @default(cuid())
+  slug      String  @unique
+  title     String
+  objective String // « Ce que je voulais valider »
+  content   String // HTML TipTap : démarche, commandes, captures, résultat
+  takeaway  String? // « Ce que j'en retiens » — encart de fin
+
+  // Bilingue différé (section 4)
+  titleEn   String?
+  summaryEn String?
+  contentEn String?
+
+  seriesId String?
+  series   LabSeries? @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+
+  dayNumber     Int? // position dans la série (Jour 12)
+  durationHours Float?
+  difficulty    Int? // 1 à 5
+
+  coverId String?
+  cover   Media?  @relation(fields: [coverId], references: [id], onDelete: SetNull)
+  repoUrl String?
+
+  status Status @default(DRAFT)
+  views  Int    @default(0)
+
+  tags Tag[]
+
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([status, publishedAt])
+  @@index([seriesId, dayNumber])
+}
+
+model Tag {
+  id    String  @id @default(cuid())
+  slug  String  @unique
+  name  String
+  kind  TagKind @default(TECH)
+  color String?
+
+  projects Project[]
+  labs     Lab[]
+}
+
+model Skill {
+  id       String @id @default(cuid())
+  name     String
+  category String // « Data Engineering », « DevOps », « Sécurité »
+  level    Int // 1 à 5
+  order    Int    @default(0)
+
+  @@unique([category, name])
+}
+
+model Experience {
+  id          String    @id @default(cuid())
+  company     String
+  role        String
+  location    String?
+  startDate   DateTime
+  endDate     DateTime? // null = poste actuel
+  description String
+  order       Int       @default(0)
+
+  @@unique([company, role, startDate])
+}
+
+model Education {
+  id          String    @id @default(cuid())
+  school      String
+  degree      String
+  field       String?
+  // Nullable : un CV ne donne souvent que l'année d'obtention.
+  startDate   DateTime?
+  endDate     DateTime?
+  description String?
+  order       Int       @default(0)
+
+  @@unique([school, degree])
+}
+
+model Media {
+  id        String   @id @default(cuid())
+  url       String
+  publicId  String   @unique // identifiant Cloudinary, requis pour la suppression
+  alt       String
+  width     Int
+  height    Int
+  bytes     Int
+  createdAt DateTime @default(now())
+
+  projects  Project[]
+  labSeries LabSeries[]
+  labs      Lab[]
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String?
+  body      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([read, createdAt])
+}
+
+model SiteSettings {
+  id        String   @id @default("singleton")
+  fullName  String
+  tagline   String // « Ingénieur data & sécurité — Dakar »
+  bio       String // texte de la page À propos, HTML
+  bioEn     String?
+  avatarUrl String?
+  cvUrl     String? // PDF hébergé sur Cloudinary
+  email     String?
+  phone     String?
+  location  String?
+  socials   Json // { linkedin, github, x, … }
+  seoTitle  String?
+  seoDesc   String?
+  updatedAt DateTime @updatedAt
 }
