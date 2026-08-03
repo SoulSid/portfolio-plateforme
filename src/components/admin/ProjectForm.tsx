@@ -3,6 +3,7 @@
 import { useActionState, useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Editor } from '@/components/editor/Editor';
+import { uploadFromEditor } from '@/components/editor/uploadFromEditor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -142,6 +143,7 @@ export function ProjectForm({ values, allTags }: Props) {
               setContent(html);
               markDirty();
             }}
+            onUploadImage={uploadFromEditor}
           />
         </div>
 
