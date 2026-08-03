@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import '@fontsource-variable/bricolage-grotesque';
 import '@fontsource-variable/public-sans';
 import '@fontsource/ibm-plex-mono/400.css';
@@ -11,13 +12,17 @@ export const metadata: Metadata = {
   description: 'Plateforme éditoriale — projets et labs.',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  /* La locale vient du middleware : l'attribut lang est correct sans JavaScript. */
+  const headerList = await headers();
+  const lang = headerList.get('x-locale') === 'en' ? 'en' : 'fr';
+
   return (
-    <html lang="fr">
+    <html lang={lang}>
       <body className="min-h-svh antialiased">{children}</body>
     </html>
   );

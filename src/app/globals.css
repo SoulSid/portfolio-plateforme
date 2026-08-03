@@ -168,3 +168,229 @@ body {
 .hljs-meta {
   color: #8a94a6;
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   FRONT PUBLIC — deux directions visuelles, pilotees par data-skin sur <html>
+   OCTET   : accent ambre, mise en page editoriale
+   BITFIELD: accent vert acide, mise en page tableau de bord
+   ══════════════════════════════════════════════════════════════════════ */
+.site {
+  --s-bg: #07090c;
+  --s-panel: #0d1117;
+  --s-panel-2: #11161e;
+  --s-line: #1e252f;
+  --s-text: #e8ecf1;
+  --s-muted: #7d8794;
+  --s-accent: #f0a500;
+  --s-accent-ink: #07090c;
+
+  background: var(--s-bg);
+  color: var(--s-text);
+  font-family: var(--font-sans);
+}
+
+:root[data-skin='bitfield'] .site {
+  --s-accent: #c5f82a;
+  --s-panel: #0b0f14;
+  --s-panel-2: #121820;
+  --s-line: #202832;
+}
+
+.site a {
+  color: inherit;
+}
+.site ::selection {
+  background: var(--s-accent);
+  color: var(--s-accent-ink);
+}
+
+/* Etiquettes techniques : tout ce qui est une mesure passe en mono */
+.mono-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--s-muted);
+}
+
+.hex-index {
+  font-family: var(--font-mono);
+  color: var(--s-accent);
+}
+
+.panel {
+  background: var(--s-panel);
+  border: 1px solid var(--s-line);
+  border-radius: 10px;
+}
+
+.accent-btn {
+  background: var(--s-accent);
+  color: var(--s-accent-ink);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.85rem 1.4rem;
+  border-radius: 6px;
+  display: inline-block;
+}
+.ghost-btn {
+  border: 1px solid var(--s-line);
+  color: var(--s-text);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.85rem 1.4rem;
+  border-radius: 6px;
+  display: inline-block;
+}
+.accent-btn:hover,
+.ghost-btn:hover {
+  filter: brightness(1.1);
+}
+
+.site :focus-visible {
+  outline: 2px solid var(--s-accent);
+  outline-offset: 3px;
+}
+
+/* Bandeau binaire defilant — decoratif, coupe si mouvement reduit */
+.tape {
+  border-block: 1px solid var(--s-line);
+  overflow: hidden;
+  white-space: nowrap;
+}
+.tape-inner {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.2em;
+  color: var(--s-muted);
+  opacity: 0.45;
+  padding-block: 0.4rem;
+  animation: tape-scroll 90s linear infinite;
+}
+@keyframes tape-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tape-inner {
+    animation: none;
+  }
+}
+
+/* Contenu d'article rendu depuis le HTML de TipTap */
+.article-body {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  max-width: 68ch;
+}
+.article-body :is(h2, h3) {
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--s-text);
+}
+.article-body h2 {
+  font-size: 1.6rem;
+  margin: 2.5rem 0 0.75rem;
+}
+.article-body h3 {
+  font-size: 1.2rem;
+  margin: 2rem 0 0.5rem;
+}
+.article-body p {
+  margin: 0 0 1.25rem;
+  color: #cdd5de;
+}
+.article-body :is(ul, ol) {
+  margin: 0 0 1.25rem;
+  padding-left: 1.4rem;
+  color: #cdd5de;
+}
+.article-body ul {
+  list-style: square;
+}
+.article-body ol {
+  list-style: decimal;
+}
+.article-body li::marker {
+  color: var(--s-accent);
+}
+.article-body blockquote {
+  border-left: 2px solid var(--s-accent);
+  padding-left: 1.1rem;
+  margin: 1.5rem 0;
+  color: var(--s-muted);
+}
+.article-body a {
+  color: var(--s-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.article-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+}
+.article-body pre {
+  background: #05070a;
+  border: 1px solid var(--s-line);
+  border-radius: 8px;
+  padding: 1rem 1.15rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.65;
+}
+.article-body :not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--s-panel-2);
+  border: 1px solid var(--s-line);
+  border-radius: 4px;
+  padding: 0.08em 0.34em;
+}
+
+/* ── BITFIELD : la meme structure DOM, une autre grammaire de mise en page ── */
+:root[data-skin='bitfield'] .site h1 {
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+}
+:root[data-skin='bitfield'] .site .panel {
+  border-radius: 4px;
+}
+:root[data-skin='bitfield'] .site .accent-btn,
+:root[data-skin='bitfield'] .site .ghost-btn {
+  border-radius: 2px;
+}
+/* Le hero passe en panneau scinde, encadre */
+:root[data-skin='bitfield'] .site section:first-of-type > div.grid {
+  border: 1px solid var(--s-line);
+  border-radius: 4px;
+  background: var(--s-panel);
+  padding: 1.5rem;
+  gap: 1.5rem;
+}
+/* Les compteurs deviennent des cellules pleines, la derniere en accent */
+:root[data-skin='bitfield'] .site ul.grid-cols-2 > li:last-child {
+  background: var(--s-accent);
+  color: var(--s-accent-ink);
+}
+:root[data-skin='bitfield'] .site ul.grid-cols-2 > li:last-child .mono-label {
+  color: var(--s-accent-ink);
+  opacity: 0.75;
+}
+/* Numerotation binaire des sections a la place de l'hexa */
+:root[data-skin='bitfield'] .site .hex-index {
+  font-weight: 700;
+}

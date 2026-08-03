@@ -73,12 +73,15 @@ model Project {
 }
 
 model LabSeries {
-  id          String  @id @default(cuid())
-  slug        String  @unique
+  id          String @id @default(cuid())
+  slug        String @unique
   title       String // « 20 jours — Pipeline de détection de fraude CDR »
   description String
-  coverId     String?
-  cover       Media?  @relation(fields: [coverId], references: [id], onDelete: SetNull)
+
+  titleEn       String?
+  descriptionEn String?
+  coverId       String?
+  cover         Media?  @relation(fields: [coverId], references: [id], onDelete: SetNull)
 
   labs Lab[]
 
@@ -89,12 +92,13 @@ model LabSeries {
 }
 
 model Lab {
-  id        String  @id @default(cuid())
-  slug      String  @unique
-  title     String
-  objective String // « Ce que je voulais valider »
-  content   String // HTML TipTap : démarche, commandes, captures, résultat
-  takeaway  String? // « Ce que j'en retiens » — encart de fin
+  id         String  @id @default(cuid())
+  slug       String  @unique
+  title      String
+  objective  String // « Ce que je voulais valider »
+  content    String // HTML TipTap : démarche, commandes, captures, résultat
+  takeaway   String? // « Ce que j'en retiens » — encart de fin
+  takeawayEn String?
 
   // Bilingue différé (section 4)
   titleEn   String?
@@ -126,49 +130,56 @@ model Lab {
 }
 
 model Tag {
-  id    String  @id @default(cuid())
-  slug  String  @unique
-  name  String
-  kind  TagKind @default(TECH)
-  color String?
+  id     String  @id @default(cuid())
+  slug   String  @unique
+  name   String
+  nameEn String?
+  kind   TagKind @default(TECH)
+  color  String?
 
   projects Project[]
   labs     Lab[]
 }
 
 model Skill {
-  id       String @id @default(cuid())
-  name     String
-  category String // « Data Engineering », « DevOps », « Sécurité »
-  level    Int // 1 à 5
-  order    Int    @default(0)
+  id         String  @id @default(cuid())
+  name       String
+  category   String // « Data Engineering », « DevOps », « Sécurité »
+  categoryEn String?
+  level      Int // 1 à 5
+  order      Int     @default(0)
 
   @@unique([category, name])
 }
 
 model Experience {
-  id          String    @id @default(cuid())
-  company     String
-  role        String
-  location    String?
-  startDate   DateTime
-  endDate     DateTime? // null = poste actuel
-  description String
-  order       Int       @default(0)
+  id            String    @id @default(cuid())
+  company       String
+  role          String
+  location      String?
+  startDate     DateTime
+  endDate       DateTime? // null = poste actuel
+  description   String
+  roleEn        String?
+  descriptionEn String?
+  order         Int       @default(0)
 
   @@unique([company, role, startDate])
 }
 
 model Education {
-  id          String    @id @default(cuid())
-  school      String
-  degree      String
-  field       String?
+  id            String    @id @default(cuid())
+  school        String
+  degree        String
+  field         String?
   // Nullable : un CV ne donne souvent que l'année d'obtention.
-  startDate   DateTime?
-  endDate     DateTime?
-  description String?
-  order       Int       @default(0)
+  startDate     DateTime?
+  endDate       DateTime?
+  description   String?
+  degreeEn      String?
+  fieldEn       String?
+  descriptionEn String?
+  order         Int       @default(0)
 
   @@unique([school, degree])
 }
@@ -201,18 +212,21 @@ model ContactMessage {
 }
 
 model SiteSettings {
-  id        String   @id @default("singleton")
-  fullName  String
-  tagline   String // « Ingénieur data & sécurité — Dakar »
-  bio       String // texte de la page À propos, HTML
-  bioEn     String?
-  avatarUrl String?
-  cvUrl     String? // PDF hébergé sur Cloudinary
-  email     String?
-  phone     String?
-  location  String?
-  socials   Json // { linkedin, github, x, … }
-  seoTitle  String?
-  seoDesc   String?
-  updatedAt DateTime @updatedAt
+  id         String   @id @default("singleton")
+  fullName   String
+  tagline    String // « Ingénieur data & sécurité — Dakar »
+  taglineEn  String?
+  bio        String // texte de la page À propos, HTML
+  bioEn      String?
+  avatarUrl  String?
+  cvUrl      String? // PDF hébergé sur Cloudinary
+  email      String?
+  phone      String?
+  location   String?
+  socials    Json // { linkedin, github, x, … }
+  seoTitle   String?
+  seoDesc    String?
+  seoTitleEn String?
+  seoDescEn  String?
+  updatedAt  DateTime @updatedAt
 }
