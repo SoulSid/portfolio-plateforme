@@ -4,6 +4,9 @@ Site personnel de Souleymane S. Sidibé : réalisations, comptes rendus d'atelie
 professionnel. **Tout le contenu vit en base de données** et se publie depuis `/admin`,
 sans toucher au code ni redéployer.
 
+> En cas de problème — port occupé, 404 inattendu, session perdue — voir
+> **[RUNBOOK.md](RUNBOOK.md)**, qui rassemble les incidents connus et leurs remèdes.
+
 ---
 
 ## Démarrer en local
