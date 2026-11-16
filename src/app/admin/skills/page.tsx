@@ -11,6 +11,13 @@ const FIELDS: CrudField[] = [
   { name: 'categoryEn', label: 'Catégorie (EN)', hint: 'Vide = le français est réutilisé.' },
   { name: 'level', label: 'Niveau (1 à 5)', type: 'number', min: 1, max: 5, required: true },
   { name: 'order', label: 'Ordre', type: 'number', min: 0 },
+  {
+    name: 'description',
+    label: 'Description (FR)',
+    type: 'textarea',
+    hint: "Texte de la carte qui s'ouvre au clic sur la compétence.",
+  },
+  { name: 'descriptionEn', label: 'Description (EN)', type: 'textarea', hint: 'Vide = le français est réutilisé.' },
 ];
 
 export default async function SkillsPage() {
@@ -26,6 +33,8 @@ export default async function SkillsPage() {
       categoryEn: s.categoryEn ?? '',
       level: String(s.level),
       order: String(s.order),
+      description: s.description ?? '',
+      descriptionEn: s.descriptionEn ?? '',
     },
   }));
 

@@ -1,0 +1,14 @@
+# Déploiement Netlify.
+# Next.js est détecté automatiquement : Netlify installe son adaptateur
+# (OpenNext) qui transforme les routes serveur, le middleware et le cache
+# (unstable_cache / revalidateTag) en fonctions Netlify. Aucun plugin à ajouter.
+#
+# Les variables d'environnement ne vont PAS ici : elles se saisissent dans
+# Netlify → Site configuration → Environment variables (voir README).
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"

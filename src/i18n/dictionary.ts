@@ -51,6 +51,10 @@ const DICT = {
     experience: 'Parcours',
     education: 'Formation',
     downloadCv: 'Télécharger le CV',
+    present: "aujourd'hui",
+    skillHint: 'Cliquez sur une compétence pour en savoir plus.',
+    skillClose: 'Fermer',
+    skillNoDescription: 'Description à venir.',
 
     contactTitle: 'Contact',
     contactName: 'Nom',
@@ -119,6 +123,10 @@ const DICT = {
     experience: 'Experience',
     education: 'Education',
     downloadCv: 'Download CV',
+    present: 'present',
+    skillHint: 'Click a skill to learn more.',
+    skillClose: 'Close',
+    skillNoDescription: 'Description coming soon.',
 
     contactTitle: 'Contact',
     contactName: 'Name',

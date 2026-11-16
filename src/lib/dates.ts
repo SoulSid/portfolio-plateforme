@@ -31,3 +31,18 @@ export function year(value: DateLike): string {
   const date = toDate(value);
   return date ? String(date.getUTCFullYear()) : '';
 }
+
+/**
+ * « Septembre 2026 » / « September 2026 » — format des expériences, comme
+ * sur le CV. Calculé en UTC : les dates sont saisies au premier du mois.
+ */
+export function monthYear(value: DateLike, locale: 'fr' | 'en'): string {
+  const date = toDate(value);
+  if (!date) return '';
+  const text = new Intl.DateTimeFormat(locale === 'fr' ? 'fr-FR' : 'en-GB', {
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(date);
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}

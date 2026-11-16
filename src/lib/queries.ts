@@ -8,12 +8,18 @@ import { prisma } from '@/lib/prisma';
  * `series`, `settings`). Les Server Actions de l'admin appellent
  * `revalidateTag` sur ces mêmes étiquettes : le site a la vitesse du statique
  * et se met à jour dès la publication (section 5 du brief).
+ *
+ * Filet de sécurité : `revalidate: CACHE_SECONDS`. Une écriture qui ne passe
+ * PAS par l'admin (seed, Prisma Studio, SQL direct) n'appelle pas
+ * revalidateTag ; sans expiration, le site afficherait l'ancien contenu
+ * indéfiniment — c'est arrivé le 16/11/2026 après un seed.
  */
+const CACHE_SECONDS = 3600;
 
 export const getSettings = unstable_cache(
   async () => prisma.siteSettings.findUnique({ where: { id: 'singleton' } }),
   ['settings'],
-  { tags: ['settings'] },
+  { revalidate: CACHE_SECONDS, tags: ['settings'] },
 );
 
 export const getPublishedLabs = unstable_cache(
@@ -28,7 +34,7 @@ export const getPublishedLabs = unstable_cache(
       },
     }),
   ['labs-published'],
-  { tags: ['labs'] },
+  { revalidate: CACHE_SECONDS, tags: ['labs'] },
 );
 
 export const getPublishedProjects = unstable_cache(
@@ -39,7 +45,7 @@ export const getPublishedProjects = unstable_cache(
       include: { tags: true, cover: true },
     }),
   ['projects-published'],
-  { tags: ['projects'] },
+  { revalidate: CACHE_SECONDS, tags: ['projects'] },
 );
 
 export const getPublishedSeries = unstable_cache(
@@ -57,7 +63,7 @@ export const getPublishedSeries = unstable_cache(
       },
     }),
   ['series-published'],
-  { tags: ['series'] },
+  { revalidate: CACHE_SECONDS, tags: ['series'] },
 );
 
 export const getProfile = unstable_cache(
@@ -70,13 +76,13 @@ export const getProfile = unstable_cache(
     return { skills, experiences, education };
   },
   ['profile'],
-  { tags: ['profile'] },
+  { revalidate: CACHE_SECONDS, tags: ['profile'] },
 );
 
 export const getTags = unstable_cache(
   async () => prisma.tag.findMany({ orderBy: [{ kind: 'asc' }, { name: 'asc' }] }),
   ['tags'],
-  { tags: ['tags'] },
+  { revalidate: CACHE_SECONDS, tags: ['tags'] },
 );
 
 /**

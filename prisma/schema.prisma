@@ -147,6 +147,9 @@ model Skill {
   category   String // « Data Engineering », « DevOps », « Sécurité »
   categoryEn String?
   level      Int // 1 à 5
+  // Texte de la carte qui s'ouvre au clic sur la compétence (site public).
+  description   String?
+  descriptionEn String?
   order      Int     @default(0)
 
   @@unique([category, name])

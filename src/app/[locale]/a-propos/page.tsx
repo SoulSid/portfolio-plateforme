@@ -2,7 +2,8 @@ import { notFound } from 'next/navigation';
 import { isLocale, pick, pickNullable, type Locale } from '@/i18n/config';
 import { t } from '@/i18n/dictionary';
 import { getProfile, getSettings } from '@/lib/queries';
-import { year } from '@/lib/dates';
+import { monthYear, year } from '@/lib/dates';
+import { SkillExplorer } from '@/components/public/SkillExplorer';
 
 export default async function AboutPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: raw } = await params;
@@ -11,11 +12,12 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
   const [settings, profile] = await Promise.all([getSettings(), getProfile()]);
 
-  const byCategory = new Map<string, typeof profile.skills>();
-  for (const skill of profile.skills) {
-    const key = locale === 'en' && skill.categoryEn ? skill.categoryEn : skill.category;
-    byCategory.set(key, [...(byCategory.get(key) ?? []), skill]);
-  }
+  const skills = profile.skills.map((skill) => ({
+    id: skill.id,
+    name: skill.name,
+    category: pick(locale, skill.category, skill.categoryEn),
+    description: pickNullable(locale, skill.description, skill.descriptionEn),
+  }));
 
   return (
     <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
@@ -35,7 +37,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
       {settings?.cvUrl && (
         <p className="mt-6">
-          <a href={settings.cvUrl} target="_blank" rel="noreferrer noopener" className="accent-btn">
+          <a href={settings.cvUrl} download className="accent-btn">
             {t(locale, 'downloadCv')}
           </a>
         </p>
@@ -53,8 +55,8 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                 <div>
                   <p className="mono-label">{exp.company}</p>
                   <p className="mono-label">
-                    {year(exp.startDate)}
-                    {exp.endDate ? ` — ${year(exp.endDate)}` : ' —'}
+                    {monthYear(exp.startDate, locale)} —{' '}
+                    {exp.endDate ? monthYear(exp.endDate, locale) : t(locale, 'present')}
                   </p>
                   {exp.location && <p className="mono-label">{exp.location}</p>}
                 </div>
@@ -72,30 +74,21 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
         </>
       )}
 
-      {byCategory.size > 0 && (
+      {skills.length > 0 && (
         <>
           <h2 className="font-display mt-14 mb-5 text-xl font-extrabold tracking-tight">
             <span className="hex-index mr-2 text-base">0x13</span>
             {t(locale, 'skills')}
           </h2>
-          <dl className="grid gap-6 sm:grid-cols-2">
-            {[...byCategory.entries()].map(([category, skills]) => (
-              <div key={category}>
-                <dt className="mono-label mb-2">{category}</dt>
-                <dd className="m-0 flex flex-wrap gap-2">
-                  {skills.map((skill) => (
-                    <span
-                      key={skill.id}
-                      className="mono-label rounded px-2.5 py-1"
-                      style={{ border: '1px solid var(--s-line)' }}
-                    >
-                      {skill.name}
-                    </span>
-                  ))}
-                </dd>
-              </div>
-            ))}
-          </dl>
+          <SkillExplorer
+            grouped
+            skills={skills}
+            labels={{
+              hint: t(locale, 'skillHint'),
+              close: t(locale, 'skillClose'),
+              noDescription: t(locale, 'skillNoDescription'),
+            }}
+          />
         </>
       )}
 

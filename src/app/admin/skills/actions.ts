@@ -25,6 +25,8 @@ const schema = z.object({
   categoryEn: z.string().trim().max(80).optional(),
   level: z.coerce.number().int().min(1).max(5),
   order: z.coerce.number().int().min(0),
+  description: z.string().trim().max(1000).optional(),
+  descriptionEn: z.string().trim().max(1000).optional(),
 });
 
 export async function saveSkill(
@@ -39,10 +41,17 @@ export async function saveSkill(
     categoryEn: formData.get('categoryEn') || undefined,
     level: formData.get('level') || 3,
     order: formData.get('order') || 0,
+    description: formData.get('description') || undefined,
+    descriptionEn: formData.get('descriptionEn') || undefined,
   });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Champs invalides.' };
 
-  const data = { ...parsed.data, categoryEn: parsed.data.categoryEn ?? null };
+  const data = {
+    ...parsed.data,
+    categoryEn: parsed.data.categoryEn ?? null,
+    description: parsed.data.description ?? null,
+    descriptionEn: parsed.data.descriptionEn ?? null,
+  };
   if (id) await prisma.skill.update({ where: { id }, data });
   else await prisma.skill.create({ data });
 

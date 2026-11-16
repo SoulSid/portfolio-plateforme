@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { isLocale, localePath, pick, type Locale } from '@/i18n/config';
+import { isLocale, localePath, pick, pickNullable, type Locale } from '@/i18n/config';
 import { t } from '@/i18n/dictionary';
 import {
   getProfile,
@@ -10,6 +10,7 @@ import {
   getSettings,
 } from '@/lib/queries';
 import { LabCard, ProjectCard } from '@/components/public/Cards';
+import { SkillExplorer } from '@/components/public/SkillExplorer';
 import { ymd } from '@/lib/dates';
 
 import { buildMetadata } from '@/lib/metadata';
@@ -72,6 +73,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <Link href={localePath(locale, '/projets')} className="ghost-btn">
                 {t(locale, 'heroCtaProjects')}
               </Link>
+              {settings?.cvUrl && (
+                <a href={settings.cvUrl} download className="ghost-btn">
+                  {t(locale, 'downloadCv')}
+                </a>
+              )}
             </div>
           </div>
 
@@ -174,17 +180,19 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <span className="hex-index mr-2 text-base">0x03</span>
             {t(locale, 'skills')}
           </h2>
-          <ul className="flex flex-wrap gap-2">
-            {profile.skills.slice(0, 28).map((skill) => (
-              <li
-                key={skill.id}
-                className="mono-label rounded px-2.5 py-1"
-                style={{ border: '1px solid var(--s-line)' }}
-              >
-                {skill.name}
-              </li>
-            ))}
-          </ul>
+          <SkillExplorer
+            skills={profile.skills.slice(0, 28).map((skill) => ({
+              id: skill.id,
+              name: skill.name,
+              category: pick(locale, skill.category, skill.categoryEn),
+              description: pickNullable(locale, skill.description, skill.descriptionEn),
+            }))}
+            labels={{
+              hint: t(locale, 'skillHint'),
+              close: t(locale, 'skillClose'),
+              noDescription: t(locale, 'skillNoDescription'),
+            }}
+          />
           <p className="mt-5">
             <Link href={localePath(locale, '/a-propos')} className="ghost-btn">
               {t(locale, 'navAbout')}
